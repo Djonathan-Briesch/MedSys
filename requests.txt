@@ -1,0 +1,141 @@
+Usuario Médico:
+    Login:
+        Request:
+            - Email ou CPF
+            - Senha
+        Response:
+            - id (Médico)
+    Buscar um Médico especifico: // utilizar like
+        Request:
+            - id (Medico) (opcional)
+            - nome (opcional, pode ser parcial)   
+	    - espescialidade                                                                         
+        Response:
+                - nome
+                - email
+                - crms:
+                    - numero
+                    - estado
+                - especialidade:
+                    - id
+                    - nome
+
+DisponibilidadeMedico:
+    # Não retornar os horarios se tem consultas com o status AGENDADA ou EM_ANDAMENTO ou que forem anterior ao dia atual
+    Buscar disponibilidade de horarios do médico: // n retornar consulta se o medico ta ocupado com outra consulta
+        Request:
+            - id (Médico)
+        Response:
+            - id (DisponibilidadeMedico)
+            - Dias da semana
+            - Horario do inicio do espediente
+            - Horario do fim do espediente
+
+
+        
+    Cadastrar Horarios:
+        Request:
+            - id (Médico)
+            - Dia da semana
+            - Horario de inicio
+            - Horario de fim
+        Response:
+            - id (DisponibilidadeMedico)
+
+Notificacao:
+    # Notificação enviada usando o tamplate da tabela TamplateNotificação
+    Cadastrar:
+        Request:
+            - id (Usuario) # Usuario pra quem vai enviar
+            - titulo
+            - descricao
+            - dataHora # Data e Hora de envio
+        Response:
+            id (Notificacao)
+    
+    Buscar todas pelo usuario:
+        Request:
+            - id (Usuario)
+        Response:
+            - id
+            - titulo
+            - descricao
+            - dataHora
+            - lida
+
+    Confirmar leitura:
+        Request:
+            - id (Notificacao)
+        Response:
+            - id (Notificacao0)
+
+Agendamento:    
+    Buscar todos agendamento por um Paciente: # Retorna todos onde o paciente aparece
+        Request:
+            - id (Paciente)
+        Response:
+            - id (Médico)
+            - id (Paciente)
+            - Data e hora de inicio
+            - Data e hora de fim
+            - Status
+            - Observacoes
+
+    Buscar todos agendamento por um Médico: # Retorna todos onde o Médico aparece
+        Request:
+            - id (Médico)
+        Response:
+            - id (Médico)
+            - id (Paciente)
+            - Data e hora de inicio
+            - Data e hora de fim
+            - Status
+            - Observacoes
+    
+    Update dos horarios caso o status seja ADIADO ou ADIANTADO:
+        Request:
+            - id (Agendamento)
+            - Data e Hora inicio
+            - Data e Hora fim
+            - Observacoes (opcional)
+        Response:
+            - id (Agendamento) (opcional)
+            - (Dados atualziado) (opcional)
+
+Consulta:
+    Create: # É criada quando o status do agendamento for CONFIRMADO
+    
+    Buscar todas as consultas por um Paciente:
+        Request:
+            - id (Paciente) # Busca atraves dos agendamentos
+        Response:
+            - id (Consulta)
+            - Data e Hora Inicio
+            - Data e Hora fim
+            - Status
+            - Notas Médicas (opcional)
+
+    Buscar todas as consultas por um Médico:
+        Request:
+            - id (Médico) # Busca atraves dos agendamentos
+        Response:
+            - id (Consulta)
+            - Data e Hora Inicio
+            - Data e Hora fim
+            - Status
+            - Notas Médicas (opcional)
+        
+
+    Update dos horarios quando iniciar a consulta:
+        Request:
+            - id (Consulta)
+            - Data e Hora inicio
+        Response:
+            - id (Consulta)
+
+    Update dos horarios quando finalizar a consulta:
+        Request:
+            - id (Consulta)
+            - Data e Hora inicio
+        Response:
+            - id (Consulta)

@@ -5,6 +5,7 @@ class PrescriptionDTO
     private $consultationId;
     private $medicineName;
     private $dosage;
+    
     private $duration;
 
     public function __construct($consultationId, $medicineName, $dosage, $duration) {

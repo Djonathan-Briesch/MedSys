@@ -1,0 +1,324 @@
+Usuario Médico:
+    Cadastrar:
+        Request:
+            - Nome
+            - Email
+            - Data de Nacimento
+            - CPF
+            - Senha
+            - Tipo
+            - CRM:
+                - Numero
+                - Estado
+            - Especialidade
+        Response:
+            - id (Médico)
+    Login:
+        Request:
+            - Email ou CPF
+            - Senha
+        Response:
+            - id (Médico)
+    Buscar todos os Médicos:
+        Request:
+        Response:
+            - id (Médico)
+            - Nome
+            - Especialidade
+    Buscar um Médico especifico:
+        Request:
+            - id (Medico) (opcional)
+            - crmNumero (opcional)
+            - crmEstado (opcional)
+            - nome (opcional, pode ser parcial)                                                                            
+        Response:
+            Response:
+                - nome
+                - email
+                - crms:
+                    - numero
+                    - estado
+                - especialidade:
+                    - id
+                    - nome
+    Deletar Médico:
+        Request:
+            - id (Médico)
+        Response:
+            - Mensagem de confrimação
+    
+    Update do médico:
+        Request:
+            - id (Médico)
+            - (Somente os dados a serem alterados)
+        Response:
+            - id ou os novos dados
+
+Usuario Paciente:
+    Cadastrar:
+        Request:
+            - Nome
+            - Email
+            - Data de Nacimento
+            - CPF
+            - Senha
+            - Tipo
+            - Plano de Saúde (opcional)
+        Response:
+            - id (Paciente)
+        Login:
+            Request:
+                - Email ou CPF
+                - Senha
+            Response:
+                - id (Paciente)
+        Buscar todos os Pacientes:
+            Request:
+            Response:
+                - id (Paciente)
+                - Nome
+                - Email
+        Buscar um Pacientes especifico:
+            Request:
+                - id: (opcional)
+                - Email: (opcional)
+                - CPF: (opcional)
+                - nome: (opcional, pode ser parcial)                                                                            
+            Response:
+                Response:
+                    - nome
+                    - email
+                    - Plano de Saúde
+        Deletar Paciente:
+            Request:
+                - id (Paciente)
+            Response:
+                - Mensagem de confrimação
+        
+        Update do Paciente:
+            Request:
+                - id (Paciente)
+                - (Somente os dados a serem alterados)
+            Response:
+                - id (Paciente) (opcional) 
+                - (Dados atualizados) (opcional)
+
+
+DisponibilidadeMedico:
+    # Não retornar os horarios se tem consultas com o status AGENDADA ou EM_ANDAMENTO ou que forem anterior ao dia atual
+    Buscar disponibilidade de horarios do médico:
+        Request:
+            - id (Médico)
+        Response:
+            - id (DisponibilidadeMedico)
+            - Dias da semana
+            - Horario do inicio do espediente
+            - Horario do fim do espediente
+
+    Update nos horaios:
+        Request:
+            - id (Médico) (opcional)
+            - id (DisponibilidadeMedico) (opcional)
+            - (Somente os dados a serem alterados)
+        Response:
+            - id (DisponibilidadeMedico) (opcional)
+            - (Dados atualizados) (opcional)
+
+    Deletar horario:
+        Request:
+            - id (DisponibilidadeMedico)
+        Response:
+            - Mensagem de confrimação
+        
+    Cadastrar Horarios:
+        Request:
+            - id (Médico)
+            - Dia da semana
+            - Horario de inicio
+            - Horario de fim
+        Response:
+            - id (DisponibilidadeMedico)
+
+CRMs:
+    Cadastrar:
+        Request:
+            - id (Médico)
+            - numero
+            - estado
+        Response:
+            - id (CRMs)
+
+    Buscar pelo médico:
+        Request:
+            - id (Médico)
+        Response:
+            - id (CRMs)
+            - numero
+            - estado
+
+    Deletar:
+        Request:
+            - id (CRMs)
+        Response:
+            - Mensagem de confrimação
+
+TamplateNotificacao:
+    # Cria direto no banco fds não precisa de enpoint pra isso
+
+Notificacao:
+    # Notificação enviada usando o tamplate da tabela TamplateNotificação
+    Cadastrar:
+        Request:
+            - id (Usuario) # Usuario pra quem vai enviar
+            - titulo
+            - descricao
+            - dataHora # Data e Hora de envio
+        Response:
+            id (Notificacao)
+    
+    Buscar todas pelo usuario:
+        Request:
+            - id (Usuario)
+        Response:
+            - id
+            - titulo
+            - descricao
+            - dataHora
+            - lida
+
+    Confirmar leitura:
+        Request:
+            - id (Notificacao)
+        Response:
+            - id (Notificacao0)
+
+Agendamento:
+    Realizar um Agendamento:
+        Request:
+            - id (Usuario) # Pra saber quem criou o agendamento (coluna criadoPor)
+            - id (Paciente)
+            - id (Médico)
+            - Data e Hora do inicio da consulta
+            - Data e Hora de fim da consulta
+            - Observacoes (opcional)
+        Response:
+            - id (Agendamento)
+    
+    Buscar todos agendamento por um Paciente: # Retorna todos onde o paciente aparece
+        Request:
+            - id (Paciente)
+        Response:
+            - id (Médico)
+            - id (Paciente)
+            - Data e hora de inicio
+            - Data e hora de fim
+            - Status
+            - Observacoes
+
+    Buscar todos agendamento por um Médico: # Retorna todos onde o Médico aparece
+        Request:
+            - id (Médico)
+        Response:
+            - id (Médico)
+            - id (Paciente)
+            - Data e hora de inicio
+            - Data e hora de fim
+            - Status
+            - Observacoes
+    
+    Update do status:
+        Request:
+            - id (Agendamento)
+            - Novo Status
+            - Observacoes (opcional)
+        Response:
+            - id (Agendamento) (opcional)
+            - (Status atualziado) (opcional)
+    
+    Update dos horarios caso o status seja ADIADO ou ADIANTADO:
+        Request:
+            - id (Agendamento)
+            - Data e Hora inicio
+            - Data e Hora fim
+            - Observacoes (opcional)
+        Response:
+            - id (Agendamento) (opcional)
+            - (Dados atualziado) (opcional)
+
+Consulta:
+    Create: # É criada quando o status do agendamento for CONFIRMADO
+    
+    Buscar todas as consultas por um Paciente:
+        Request:
+            - id (Paciente) # Busca atraves dos agendamentos
+        Response:
+            - id (Consulta)
+            - Data e Hora Inicio
+            - Data e Hora fim
+            - Status
+            - Notas Médicas (opcional)
+
+    Buscar todas as consultas por um Médico:
+        Request:
+            - id (Médico) # Busca atraves dos agendamentos
+        Response:
+            - id (Consulta)
+            - Data e Hora Inicio
+            - Data e Hora fim
+            - Status
+            - Notas Médicas (opcional)
+        
+    Update no status da consulta:
+        Request:
+            - id (Consulta)
+            - Novo Status
+            - Notas Médicas (opcional)
+        Response:
+            - id (Consulta) (opcional)
+            - (Status atualziado) (opcional)
+
+    Update dos horarios quando iniciar a consulta:
+        Request:
+            - id (Consulta)
+            - Data e Hora inicio
+        Response:
+            - id (Consulta)
+
+    Update dos horarios quando finalizar a consulta:
+        Request:
+            - id (Consulta)
+            - Data e Hora inicio
+        Response:
+            - id (Consulta)
+    
+Prescricao:
+    Create:
+        Request:
+            - id (Consulta)
+            - Nome do Medicamento
+            - Posologia
+            - Duração
+        Response:
+            - id (Prescricao)
+    
+    Buscar:
+        Request:
+            - id (Consulta)
+        Response:
+            - id (Prescricao)
+            - Nome do Medicamento
+            - Posologia
+            - Duração
+
+HistoricoAcao:
+    # Gerado por trigger
+    Buscar: # retornar apenas para onde o usaurio informado apareca 
+        Request:
+            - id (Usuario)
+        Response:
+            - id (HistoricoAcao)
+            - id (Agendamento)
+            - id (Consulta)
+            - Ação
+            - Data e Hora
+            - Observacoes # Mesma da observações do agendamento
