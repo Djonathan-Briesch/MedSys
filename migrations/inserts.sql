@@ -1,72 +1,52 @@
--- Inserir especialidades
-INSERT INTO Especialidade (nome) VALUES ('Cardiologia'), ('Dermatologia');
+-- Insert users (types PATIENT and DOCTOR)
+INSERT INTO User (name, email, birthDate, cpf, password, role) VALUES
+('John Silva', 'john@example.com', '1980-05-10', '12345678901', 'hash_password1', 'PATIENT'),
+('Dr. Mary Souza', 'mary@example.com', '1975-11-20', '10987654321', 'hash_password2', 'DOCTOR');
 
--- Inserir usuários (tipo PACIENTE e MEDICO)
-INSERT INTO Usuario (nome, email, dataNascimento, cpf, senha, tipo) VALUES
-('João Silva', 'joao@example.com', '1980-05-10', '12345678901', 'hash_senha1', 'PACIENTE'),
-('Dra. Maria Souza', 'maria@example.com', '1975-11-20', '10987654321', 'hash_senha2', 'MEDICO');
+-- Insert patient (reference to user John)
+INSERT INTO Patient (userId, healthPlan) VALUES
+((SELECT id FROM User WHERE email='john@example.com'), 'Unimed');
 
--- Inserir paciente (referencia ao usuário João)
-INSERT INTO Paciente (idUsuario, planoSaude) VALUES
-((SELECT id FROM Usuario WHERE email='joao@example.com'), 'Unimed');
+-- Insert doctor (reference to user Mary with specialty)
+INSERT INTO Doctor (userId, specialty) VALUES
+((SELECT id FROM User WHERE email='mary@example.com'), 'Cardiology');
 
--- Inserir médico (referencia ao usuário Maria e especialidade Cardiologia)
-INSERT INTO Medico (idUsuario, idEspecialidade) VALUES
-(
-  (SELECT id FROM Usuario WHERE email='maria@example.com'),
-  (SELECT id FROM Especialidade WHERE nome='Cardiologia')
-);
-
--- Inserir CRMs para a médica Maria
-INSERT INTO CRMs (idMedico, numero, estado) VALUES
-(
-  (SELECT idUsuario FROM Medico WHERE idUsuario = (SELECT id FROM Usuario WHERE email='maria@example.com')),
-  '12345', 'RS'
-);
-
--- Inserir agendamento entre paciente João e médica Maria
-INSERT INTO Agendamento (
-    idMedico, idPaciente, dataHoraInicio, dataHoraFim, status, criadoPor, editadoPor, ultimaAtualizacao, mensagem
+-- Insert appointment between patient John and doctor Mary
+INSERT INTO Appointment (
+    doctorId, patientId, startDateTime, endDateTime, status, createdBy, editedBy, lastUpdate, notes
 ) VALUES (
-    (SELECT idUsuario FROM Medico WHERE idUsuario = (SELECT id FROM Usuario WHERE email='maria@example.com')),
-    (SELECT idUsuario FROM Paciente WHERE idUsuario = (SELECT id FROM Usuario WHERE email='joao@example.com')),
-    '2025-07-10 14:00:00', '2025-07-10 14:30:00', 'PENDENTE',
-    (SELECT id FROM Usuario WHERE email='joao@example.com'),
+    (SELECT userId FROM Doctor WHERE userId = (SELECT id FROM User WHERE email='mary@example.com')),
+    (SELECT userId FROM Patient WHERE userId = (SELECT id FROM User WHERE email='john@example.com')),
+    '2025-07-10 14:00:00', '2025-07-10 14:30:00', 'PENDING',
+    (SELECT id FROM User WHERE email='john@example.com'),
     NULL,
     NULL,
-    'Consulta inicial'
+    'Initial consultation'
 );
 
--- Inserir consulta vinculada ao agendamento
-INSERT INTO Consulta (idAgendamento, dataHoraInicio, dataHoraFim, status, notasMedicas) VALUES
+-- Insert consultation linked to appointment
+INSERT INTO Consultation (appointmentId, startDateTime, endDateTime, status, medicalNotes) VALUES
 (
-    (SELECT id FROM Agendamento WHERE mensagem='Consulta inicial'),
-    '2025-07-10 14:00:00', '2025-07-10 14:30:00', 'AGENDADA',
+    (SELECT id FROM Appointment WHERE notes='Initial consultation'),
+    '2025-07-10 14:00:00', '2025-07-10 14:30:00', 'SCHEDULED',
     NULL
 );
 
--- Inserir prescrição para a consulta
-INSERT INTO Prescricao (idConsulta, nomeMedicamento, posologia, duracao) VALUES
+-- Insert doctor's availability (example: Monday from 08:00 to 12:00)
+INSERT INTO DoctorAvailability (doctorId, weekday, startTime, endTime) VALUES
 (
-    (SELECT id FROM Consulta WHERE idAgendamento = (SELECT id FROM Agendamento WHERE mensagem='Consulta inicial')),
-    'Dipirona', '1 comprimido a cada 8 horas', '5 dias'
-);
-
--- Inserir disponibilidade do médico (exemplo segunda-feira das 08h às 12h)
-INSERT INTO DisponibilidadeMedico (idMedico, diaSemana, horaInicio, horaFim) VALUES
-(
-    (SELECT idUsuario FROM Medico WHERE idUsuario = (SELECT id FROM Usuario WHERE email='maria@example.com')),
-    'SEGUNDA',
+    (SELECT userId FROM Doctor WHERE userId = (SELECT id FROM User WHERE email='mary@example.com')),
+    'MONDAY',
     '08:00:00',
     '12:00:00'
 );
 
--- Inserir notificação para usuário João
-INSERT INTO Notificacao (idUsuario, titulo, descricao, dataHora, lida) VALUES
+-- Insert notification for user John
+INSERT INTO Notification (userId, title, description, dateTime, readFlag) VALUES
 (
-    (SELECT id FROM Usuario WHERE email='joao@example.com'),
-    'Lembrete de consulta',
-    'Você tem uma consulta agendada para 10/07/2025 às 14:00',
+    (SELECT id FROM User WHERE email='john@example.com'),
+    'Appointment Reminder',
+    'You have an appointment scheduled for 07/10/2025 at 2:00 PM',
     NOW(),
     FALSE
 );

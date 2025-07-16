@@ -9,10 +9,8 @@ class Appointment extends BaseEntity {
     private $endDateTime;
     private $status;
     private $notes;
-    private $createdBy;
-    private $editedBy;
 
-    public function __construct($id, $doctorId, $patientId, $startDateTime, $endDateTime, $status, $notes, $createdBy, $editedBy) {
+    public function __construct($id, $doctorId, $patientId, $startDateTime, $endDateTime, $status, $notes) {
         $this->id = $id;
         $this->doctorId = $doctorId;
         $this->patientId = $patientId;
@@ -20,8 +18,6 @@ class Appointment extends BaseEntity {
         $this->endDateTime = $endDateTime;
         $this->status = $status;
         $this->notes = $notes;
-        $this->createdBy = $createdBy;
-        $this->editedBy = $editedBy;
     }
 
     public function getDoctorId() { return $this->doctorId; }
@@ -41,12 +37,6 @@ class Appointment extends BaseEntity {
 
     public function getNotes() { return $this->notes; }
     public function setNotes($notes) { $this->notes = $notes; }
-
-    public function getCreatedBy() { return $this->createdBy; }
-    public function setCreatedBy($createdBy) { $this->createdBy = $createdBy; }
-
-    public function getEditedBy() { return $this->editedBy; }
-    public function setEditedBy($editedBy) { $this->editedBy = $editedBy; }
     public function __toString() {
         return "Appointment[id={$this->id}, doctorId={$this->doctorId}, patientId={$this->patientId}, status={$this->status}]";
     }
