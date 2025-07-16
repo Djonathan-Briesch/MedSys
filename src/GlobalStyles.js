@@ -1,6 +1,6 @@
-import { styled } from 'styled-components'
+import { createGlobalStyle, styled } from 'styled-components'
 
-export const GlobalStyles = styled.css`
+export const GlobalStyles = createGlobalStyle`
   * {
     margin: 0;
     padding: 0;
@@ -10,6 +10,11 @@ export const GlobalStyles = styled.css`
   body {
     height: 100vh;
     width: 100%;
-    font-family: 'arial', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
   }
 `

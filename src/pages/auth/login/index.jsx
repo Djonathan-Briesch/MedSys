@@ -1,26 +1,57 @@
-import { mail, lock } from "../../../assets/index.js";
+import { useState } from 'react'
+import { FiMail, FiLock } from 'react-icons/fi'
+import {
+  Container,
+  LoginBox,
+  Title,
+  InputGroup,
+  IconWrapper,
+  Input,
+  Button
+} from './styles.js'
 
-export default login = () => {
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    alert(`Email: ${email}\nSenha: ${password}`)
+    // TODO: FAZER PARA LOGAR AQUI
+  }
+
   return (
-    <div>
-      <div>
-        <h1>MedSys</h1>
-        <p>Seu sistema de agendamento médico online</p>
-      </div>
-      <div>
-        <div>
-            <h1>Bem vido de volta</h1>
-        </div>
-        <form>
-            <p>* Email ou senha incorretos</p>
-            <i>mail</i>
-            <input type="text" name="" id="" />
-            <i></i>
-            <input type="password" />
+    <Container>
+      <LoginBox>
+        <Title>Login</Title>
+        <form onSubmit={handleSubmit}>
+          <InputGroup>
+            <IconWrapper>
+              <FiMail />
+            </IconWrapper>
+            <Input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </InputGroup>
+          <InputGroup>
+            <IconWrapper>
+              <FiLock />
+            </IconWrapper>
+            <Input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </InputGroup>
+          <Button type="submit">Entrar</Button>
         </form>
-        <button></button>
-        <p></p>
-      </div>
-    </div>
+      </LoginBox>
+    </Container>
   )
 }
