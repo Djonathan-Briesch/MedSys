@@ -19,23 +19,13 @@ function createConsultation($data) {
 }
 
 function getConsultationById($id) {
-    $row = findConsultationById($id);
-    if (!$row) {
+    $consultationDTO = findConsultationById($id);
+    if (!$consultationDTO) {
         return ['data' => 'Consultation not found', 'status' => 404];
     }
 
-    $consultation = new Consultation(
-        $row['id'],
-        $row['appointmentId'],
-        $row['startDateTime'],
-        $row['endDateTime'],
-        $row['status'],
-        $row['medicalNotes']
-    );
-
-    return ['data' => $consultation, 'status' => 200];
+    return ['data' => $consultationDTO, 'status' => 200];
 }
-
 function filterConsultations($filters = [], $limit = null, $offset = null) {
     $rows = findConsultations($filters, $limit, $offset);
     return ['data' => $rows, 'status' => 200];
