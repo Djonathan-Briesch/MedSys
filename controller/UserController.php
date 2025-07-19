@@ -14,17 +14,31 @@ switch ($request) {
         break;
 
     case 'POST':
-        $data = [
-            'name' => $_POST['name'] ?? null,
-            'email' => $_POST['email'] ?? null,
-            'birthDate' => $_POST['bd'] ?? null,
-            'password' => $_POST['pass'] ?? null,
-            'role' => $_POST['type'] ?? null,
-            'healthPlan' => $_POST['healthPlan'] ?? null,
-            'specialty' => $_POST['specialty'] ?? null
-        ];
-        $result = createUser($data);
+        $contentType = $_SERVER["CONTENT_TYPE"] ?? '';
+
+        if (stripos($contentType, 'application/json') !== false) {
+            $data = json_decode(file_get_contents("php://input"), true);
+        } else {
+            $data = $_POST;
+        }
+
+        if (isset($data['cpf']) && isset($data['password']) && !isset($data['name'])) {
+            $result = login($data['cpf'], $data['password']);
+        } else {
+            $user = [
+                'name' => $data['name'] ?? null,
+                'cpf' => $data['cpf'] ?? null,
+                'email' => $data['email'] ?? null,
+                'birthDate' => $data['bd'] ?? null,
+                'password' => $data['pass'] ?? null,
+                'role' => $data['type'] ?? null,
+                'healthPlan' => $data['healthPlan'] ?? null,
+                'specialty' => $data['specialty'] ?? null
+            ];
+            $result = createUser($user);
+        }
         break;
+
 
     case 'PATCH':
         parse_str(file_get_contents("php://input"), $input);

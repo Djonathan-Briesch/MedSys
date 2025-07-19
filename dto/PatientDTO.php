@@ -1,13 +1,13 @@
 <?php
 
-class PatientDTO
+class PatientDTO implements JsonSerializable
 {
     private $id;
     private $name;
     private $email;
     private $birthDate;
     private $cpf;
-    private $healthPlan;
+    private $healthPlan; // vem da tabela patient, q é a msm coisa do doctor, recebe iduser e healthplan
 
     public function __construct($id, $name, $email, $birthDate, $cpf, $healthPlan) {
         $this->id = $id;
@@ -38,5 +38,16 @@ class PatientDTO
 
     public function __toString() {
         return "PatientDTO[id={$this->id}, name={$this->name}, email={$this->email}]";
+    }
+
+        public function jsonSerialize() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'birthDate' => $this->birthDate,
+            'cpf' => $this->cpf,
+            'healthPlan' => $this->healthPlan,
+        ];
     }
 }

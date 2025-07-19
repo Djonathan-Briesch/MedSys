@@ -1,5 +1,8 @@
 <?php
 require_once '../util/database.php';
+require_once '../dto/PatientDTO.php';
+require_once '../dto/DoctorDTO.php';
+require_once '../repository/DoctorAvailabilityRepository.php';
 
 function insertUser($data) {
     $pdo = getConnection();
@@ -40,13 +43,113 @@ function findUserById($id) {
     $pdo = getConnection();
     $stmt = $pdo->prepare("SELECT * FROM User WHERE id = :id");
     $stmt->execute([':id' => $id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) return null;
+
+    switch ($user['role']) {
+        case 'PATIENT':
+            $stmt = $pdo->prepare("SELECT healthPlan FROM Patient WHERE userId = :id");
+            $stmt->execute([':id' => $user['id']]);
+            $patientData = $stmt->fetch(PDO::FETCH_ASSOC);
+            return new PatientDTO(
+                $user['id'],
+                $user['name'],
+                $user['email'],
+                $user['birthDate'],
+                $user['cpf'],
+                $patientData['healthPlan'] ?? null
+            );
+
+        case 'DOCTOR':
+            $stmt = $pdo->prepare("SELECT specialty FROM Doctor WHERE userId = :id");
+            $stmt->execute([':id' => $user['id']]);
+            $doctorData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $availability = findDoctorAvailabilityByDoctorId($user['id']);
+
+            return new DoctorDTO(
+                $user['id'],
+                $user['name'],
+                $user['email'],
+                $user['birthDate'],
+                $user['cpf'],
+                $doctorData['specialty'] ?? null,
+                $availability
+            );
+
+        default:
+            return $user;
+    }
+}
+
+function loginUser($cpf, $password)
+{
+    $pdo = getConnection();
+    $stmt = $pdo->prepare("SELECT * FROM User WHERE cpf = :cpf");
+    $stmt->execute([':cpf' => $cpf]);
+    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = null;
+
+    if (!$userData) {
+        return ['data' => 'Invalid email or password', 'status' => 401];
+    }
+
+    if ($userData['password'] !== $password) {
+        return ['data' => 'Invalid email or password', 'status' => 401];
+    }
+
+    switch ($userData['role']) {
+        case 'PATIENT':
+            $stmt = $pdo->prepare("SELECT healthPlan FROM Patient WHERE userId = :id");
+            $stmt->execute([':id' => $userData['id']]);
+            $patientData = $stmt->fetch(PDO::FETCH_ASSOC);
+            $user = new PatientDTO(
+                $userData['id'],
+                $userData['name'],
+                $userData['email'],
+                $userData['birthDate'],
+                $userData['cpf'],
+                $patientData['healthPlan'] ?? null
+            );
+            break;
+
+        case 'DOCTOR':
+            $stmt = $pdo->prepare("SELECT specialty FROM Doctor WHERE userId = :id");
+            $stmt->execute([':id' => $userData['id']]);
+            $doctorData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $availability = findDoctorAvailabilityByDoctorId($userData['id']);
+
+            $user = new DoctorDTO(
+                $userData['id'],
+                $userData['name'],
+                $userData['email'],
+                $userData['birthDate'],
+                $userData['cpf'],
+                $doctorData['specialty'] ?? null,
+                $availability
+            );
+            break;
+
+        default:
+            $user = $userData;
+    }
+
+    return ['data' => $user, 'status' => 200];
 }
 
 function findAllUsers() {
     $pdo = getConnection();
     $stmt = $pdo->query("SELECT * FROM User");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function findPatientByUserId($userId) {
+    $pdo = getConnection();
+    $stmt = $pdo->prepare("SELECT * FROM Patient WHERE userId = :userId");
+    $stmt->execute([':userId' => $userId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 function updateUserById($data) {

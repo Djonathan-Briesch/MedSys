@@ -1,8 +1,9 @@
 <?php
 require_once '../repository/UserRepository.php';
 
-function createUser($data) {
-    if (!$data['name'] || !$data['email'] || !$data['birthDate'] || !$data['password'] || !$data['role']) {
+function createUser($data)
+{
+    if (!$data['name'] || !$data['email'] || !$data['birthDate'] || !$data['password'] || !$data['role'] || !$data['cpf']) {
         return ['data' => 'Missing required fields', 'status' => 400];
     }
 
@@ -20,7 +21,8 @@ function createUser($data) {
     return ['data' => ['id' => $userId], 'status' => 201];
 }
 
-function getUserById($id) {
+function getUserById($id)
+{
     $user = findUserById($id);
     if ($user) {
         return ['data' => $user, 'status' => 200];
@@ -28,11 +30,23 @@ function getUserById($id) {
     return ['data' => 'User not found', 'status' => 404];
 }
 
-function getAllUsers() {
+function login($cpf, $password)
+{
+    $user = loginUser($cpf, $password);
+
+    if ($user) {
+        return ['data' => $user, 'status' => 200];
+    }
+    return ['data' => 'Invalid cpf or password', 'status' => 401];
+}
+
+function getAllUsers()
+{
     return ['data' => findAllUsers(), 'status' => 200];
 }
 
-function updateUser($data) {
+function updateUser($data)
+{
     if (!isset($data['id'])) {
         return ['data' => 'ID required', 'status' => 400];
     }
@@ -40,7 +54,8 @@ function updateUser($data) {
     return ['data' => $updated ? 'Updated' : 'Not updated', 'status' => $updated ? 200 : 404];
 }
 
-function deleteUser($id) {
+function deleteUser($id)
+{
     if (!$id) {
         return ['data' => 'ID required', 'status' => 400];
     }
