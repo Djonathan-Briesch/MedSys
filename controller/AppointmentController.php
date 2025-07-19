@@ -20,7 +20,6 @@ switch ($request) {
         }
         break;
 
-
     case 'POST':
         $data = [
             'doctorId' => $_POST['doctorId'] ?? null,

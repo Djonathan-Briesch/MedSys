@@ -4,14 +4,16 @@ require_once '../dto/PatientDTO.php';
 require_once '../dto/DoctorDTO.php';
 require_once '../repository/DoctorAvailabilityRepository.php';
 
-function insertUser($data) {
+function insertUser($data)
+{
     $pdo = getConnection();
-    $sql = "INSERT INTO User (name, email, birthDate, cpf, password, role) VALUES (:name, :email, :birthDate, '', :password, :role)";
+    $sql = "INSERT INTO User (name, email, birthDate, cpf, password, role) VALUES (:name, :email, :birthDate, :cpf, :password, :role)";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':name', $data['name']);
     $stmt->bindParam(':email', $data['email']);
     $stmt->bindParam(':birthDate', $data['birthDate']);
     $stmt->bindParam(':password', $data['password']);
+    $stmt->bindParam(':cpf', $data['cpf']);
     $stmt->bindParam(':role', $data['role']);
     if ($stmt->execute()) {
         return $pdo->lastInsertId();
@@ -19,7 +21,8 @@ function insertUser($data) {
     return false;
 }
 
-function insertPatient($userId, $healthPlan) {
+function insertPatient($userId, $healthPlan)
+{
     $pdo = getConnection();
     $sql = "INSERT INTO Patient (userId, healthPlan) VALUES (:userId, :healthPlan)";
     $stmt = $pdo->prepare($sql);
@@ -29,7 +32,8 @@ function insertPatient($userId, $healthPlan) {
     ]);
 }
 
-function insertDoctor($userId, $specialty) {
+function insertDoctor($userId, $specialty)
+{
     $pdo = getConnection();
     $sql = "INSERT INTO Doctor (userId, specialty) VALUES (:userId, :specialty)";
     $stmt = $pdo->prepare($sql);
@@ -39,13 +43,15 @@ function insertDoctor($userId, $specialty) {
     ]);
 }
 
-function findUserById($id) {
+function findUserById($id)
+{
     $pdo = getConnection();
     $stmt = $pdo->prepare("SELECT * FROM User WHERE id = :id");
     $stmt->execute([':id' => $id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$user) return null;
+    if (!$user)
+        return null;
 
     switch ($user['role']) {
         case 'PATIENT':
@@ -136,23 +142,127 @@ function loginUser($cpf, $password)
             $user = $userData;
     }
 
-    return ['data' => $user, 'status' => 200];
+    return $user;
 }
 
-function findAllUsers() {
+function findAllUsers()
+{
     $pdo = getConnection();
     $stmt = $pdo->query("SELECT * FROM User");
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $detailedUsers = [];
+
+    foreach ($users as $user) {
+        switch ($user['role']) {
+            case 'PATIENT':
+                $stmt = $pdo->prepare("SELECT healthPlan FROM Patient WHERE userId = :id");
+                $stmt->execute([':id' => $user['id']]);
+                $patientData = $stmt->fetch(PDO::FETCH_ASSOC);
+                $detailedUsers[] = new PatientDTO(
+                    $user['id'],
+                    $user['name'],
+                    $user['email'],
+                    $user['birthDate'],
+                    $user['cpf'],
+                    $patientData['healthPlan'] ?? null
+                );
+                break;
+
+            case 'DOCTOR':
+                $stmt = $pdo->prepare("SELECT specialty FROM Doctor WHERE userId = :id");
+                $stmt->execute([':id' => $user['id']]);
+                $doctorData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $availability = findDoctorAvailabilityByDoctorId($user['id']);
+
+                $detailedUsers[] = new DoctorDTO(
+                    $user['id'],
+                    $user['name'],
+                    $user['email'],
+                    $user['birthDate'],
+                    $user['cpf'],
+                    $doctorData['specialty'] ?? null,
+                    $availability
+                );
+                break;
+
+            default:
+                $detailedUsers[] = $user;
+        }
+    }
+
+    return $detailedUsers;
 }
 
-function findPatientByUserId($userId) {
+function findAllDoctors()
+{
+    $pdo = getConnection();
+    $stmt = $pdo->query("SELECT * FROM User WHERE role = 'DOCTOR'");
+    $doctors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $detailedDoctors = [];
+
+    $specialtyStmt = $pdo->prepare("SELECT specialty FROM Doctor WHERE userId = :id");
+
+    foreach ($doctors as $doctor) {
+        $specialtyStmt->execute([':id' => $doctor['id']]);
+        $doctorData = $specialtyStmt->fetch(PDO::FETCH_ASSOC);
+
+        $availability = findDoctorAvailabilityByDoctorId($doctor['id']);
+
+        $detailedDoctors[] = new DoctorDTO(
+            $doctor['id'],
+            $doctor['name'],
+            $doctor['email'],
+            $doctor['birthDate'],
+            $doctor['cpf'],
+            $doctorData['specialty'] ?? null,
+            $availability
+        );
+    }
+
+    return $detailedDoctors;
+}
+
+function findDoctorsByName($name)
+{
+    $pdo = getConnection();
+    $stmt = $pdo->prepare("SELECT * FROM User WHERE role = 'DOCTOR' AND name LIKE :name");
+    $stmt->execute([':name' => "%$name%"]);
+    $doctors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $detailedDoctors = [];
+
+    $specialtyStmt = $pdo->prepare("SELECT specialty FROM Doctor WHERE userId = :id");
+
+    foreach ($doctors as $doctor) {
+        $specialtyStmt->execute([':id' => $doctor['id']]);
+        $doctorData = $specialtyStmt->fetch(PDO::FETCH_ASSOC);
+
+        $availability = findDoctorAvailabilityByDoctorId($doctor['id']);
+
+        $detailedDoctors[] = new DoctorDTO(
+            $doctor['id'],
+            $doctor['name'],
+            $doctor['email'],
+            $doctor['birthDate'],
+            $doctor['cpf'],
+            $doctorData['specialty'] ?? null,
+            $availability
+        );
+    }
+
+    return $detailedDoctors;
+}
+
+function findPatientByUserId($userId)
+{
     $pdo = getConnection();
     $stmt = $pdo->prepare("SELECT * FROM Patient WHERE userId = :userId");
     $stmt->execute([':userId' => $userId]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-function updateUserById($data) {
+function updateUserById($data)
+{
     $pdo = getConnection();
     $sql = "UPDATE User SET name = :name, email = :email WHERE id = :id";
     $stmt = $pdo->prepare($sql);
@@ -163,7 +273,8 @@ function updateUserById($data) {
     ]);
 }
 
-function deleteUserById($id) {
+function deleteUserById($id)
+{
     $pdo = getConnection();
     $stmt = $pdo->prepare("DELETE FROM User WHERE id = :id");
     return $stmt->execute([':id' => $id]);

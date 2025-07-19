@@ -1,6 +1,6 @@
 <?php
 
-class ConsultationDTO
+class ConsultationDTO implements JsonSerializable
 {
     private $appointment;
     private $startDateTime;
@@ -33,5 +33,17 @@ class ConsultationDTO
 
     public function __toString() {
         return "ConsultationDTO[appointment={$this->appointment}, status={$this->status}]";
+    }
+
+    public function jsonSerialize() {
+        return [
+            'appointment' => $this->appointment instanceof JsonSerializable
+                ? $this->appointment->jsonSerialize()
+                : $this->appointment,
+            'startDateTime' => $this->startDateTime,
+            'endDateTime' => $this->endDateTime,
+            'status' => $this->status,
+            'medicalNotes' => $this->medicalNotes,
+        ];
     }
 }

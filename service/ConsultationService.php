@@ -1,5 +1,6 @@
+
 <?php
-require_once '../repository/consultation_repository.php';
+require_once '../repository/ConsultationRepository.php';
 require_once '../entity/Consultation.php';
 
 function createConsultation($data) {

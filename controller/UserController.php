@@ -8,7 +8,9 @@ switch ($request) {
     case 'GET':
         if (isset($_GET['id'])) {
             $result = getUserById($_GET['id']);
-        } else {
+        } else if(isset($_GET['doctorName'])){
+            $result = getDoctorsByName($_GET['doctorName']);
+        }else{
             $result = getAllUsers();
         }
         break;

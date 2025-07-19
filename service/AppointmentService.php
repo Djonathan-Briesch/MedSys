@@ -21,28 +21,9 @@ function createAppointment($data)
 
 function getAppointmentById($id)
 {
-    $row = findAppointmentById($id);
-    if (!$row) {
-        return ['data' => 'Appointment not found', 'status' => 404];
-    }
-
-    $appointment = new Appointment(
-        $row['id'],
-        $row['doctorId'],
-        $row['patientId'],
-        $row['startDateTime'],
-        $row['endDateTime'],
-        $row['status'],
-        $row['notes']
-    );
+    $appointment = findAppointmentById($id);
 
     return ['data' => $appointment, 'status' => 200];
-}
-
-function getAllAppointments()
-{
-    $rows = findAllAppointments();
-    return ['data' => $rows, 'status' => 200];
 }
 
 function updateAppointment($data)

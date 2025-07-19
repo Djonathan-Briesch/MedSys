@@ -1,5 +1,5 @@
 <?php
-require_once '../service/.php';
+require_once '../service/ConsultationService.php';
 require_once '../util/output_json.php';
 
 $request = $_SERVER['REQUEST_METHOD'];
