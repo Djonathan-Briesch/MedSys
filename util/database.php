@@ -1,9 +1,9 @@
 <?php
 function getConnection() {
-    $host = 'localhost';
+   $host = '127.0.0.1';
     $db = 'medsys';
     $user = 'root';
-    $pass = '';
+    $pass = 'teste';
 
     try {
         $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
