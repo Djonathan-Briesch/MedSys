@@ -20,7 +20,8 @@ switch ($request) {
         } else {
             $filters = [
                 'appointmentId' => $_GET['appointmentId'] ?? null,
-                'status' => $_GET['status'] ?? null
+                'status' => $_GET['status'] ?? null,
+                  'userId' => $_GET['userId'] ?? null 
             ];
             $limit = $_GET['limit'] ?? null;
             $offset = $_GET['offset'] ?? null;

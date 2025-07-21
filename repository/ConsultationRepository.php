@@ -56,6 +56,10 @@ function findConsultations($filters = [], $limit = null, $offset = null)
         $sql .= " AND status = :status";
         $params[':status'] = $filters['status'];
     }
+    if (!empty($filters['userId'])) {
+        $sql .= " AND appointmentId IN (SELECT id FROM Appointment WHERE patientId = :userId)";
+        $params[':userId'] = $filters['userId'];
+    }
     if ($limit !== null) {
         $sql .= " LIMIT :limit";
         $params[':limit'] = (int) $limit;
@@ -87,6 +91,7 @@ function findConsultations($filters = [], $limit = null, $offset = null)
 
     return $result;
 }
+
 
 function updateConsultationById($data)
 {
