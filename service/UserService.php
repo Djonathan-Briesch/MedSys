@@ -45,6 +45,14 @@ function getAllUsers()
     return ['data' => findAllUsers(), 'status' => 200];
 }
 
+function getAllDoctors() {
+    $doctors = findAllDoctors();
+    if ($doctors) {
+        return ['data' => $doctors, 'status' => 200];
+    }
+    return ['data' => 'Doctors not found', 'status' => 404];
+}
+
 function getDoctorsByName($name){
     $doctors = findDoctorsByName($name);
     if ($doctors) {

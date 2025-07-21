@@ -15,15 +15,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 
 switch ($request) {
-    case 'GET':
-        if (isset($_GET['id'])) {
-            $result = getUserById($_GET['id']);
-        } else if(isset($_GET['doctorName'])){
-            $result = getDoctorsByName($_GET['doctorName']);
-        }else{
-            $result = getAllUsers();
-        }
-        break;
+   case 'GET':
+    if (isset($_GET['id'])) {
+        $result = getUserById($_GET['id']);
+    } else if (isset($_GET['doctorName'])) {
+        $result = getDoctorsByName($_GET['doctorName']);
+    } else if (isset($_GET['type']) && $_GET['type'] === 'DOCTOR') {
+        $result = getAllDoctors();
+    } else {
+        $result = getAllUsers();
+    }
+    break;
+
 
     case 'POST':
         $contentType = $_SERVER["CONTENT_TYPE"] ?? '';
