@@ -40,6 +40,16 @@ function getAllNotifications() {
     return ['data' => $rows, 'status' => 200];
 }
 
+function getNotificationsByUserId($userId) {
+    if (empty($userId)) {
+        return ['data' => 'UserId is required', 'status' => 400];
+    }
+
+    $rows = findNotificationsByUserId($userId);
+    return ['data' => $rows, 'status' => 200];
+}
+
+
 function updateNotification($data) {
     if (empty($data['id'])) {
         return ['data' => 'ID is required', 'status' => 400];

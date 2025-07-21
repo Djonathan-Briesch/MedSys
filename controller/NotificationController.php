@@ -4,14 +4,27 @@ require_once '../util/output_json.php';
 
 $request = $_SERVER['REQUEST_METHOD'];
 
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS");
+
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 switch ($request) {
     case 'GET':
-        if (isset($_GET['id'])) {
-            $result = getNotificationById($_GET['id']);
-        } else {
-            $result = getAllNotifications();
-        }
-        break;
+    if (isset($_GET['id'])) {
+        $result = getNotificationById($_GET['id']);
+    } elseif (isset($_GET['userId'])) {
+        $result = getNotificationsByUserId($_GET['userId']);
+    } else {
+        $result = getAllNotifications();
+    }
+    break;
+
 
     case 'POST':
         $data = [
