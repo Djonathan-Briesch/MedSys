@@ -17,22 +17,14 @@ function createDoctorAvailability($data) {
     return ['data' => ['id' => $id], 'status' => 201];
 }
 
-function getDoctorAvailabilityById($id) {
-    $row = findDoctorAvailabilityById($id);
-    if (!$row) {
+function getDoctorAvailabilityById($doctorId) {
+    $availabilities = findDoctorAvailabilityByDoctorId($doctorId);
+    if (!$availabilities || count($availabilities) === 0) {
         return ['data' => 'Doctor availability not found', 'status' => 404];
     }
-
-    $availability = new DoctorAvailability(
-        $row['id'],
-        $row['doctorId'],
-        $row['weekDay'],
-        $row['startTime'],
-        $row['endTime']
-    );
-
-    return ['data' => $availability, 'status' => 200];
+    return ['data' => $availabilities, 'status' => 200];
 }
+
 
 function getAllDoctorAvailabilities() {
     $rows = findAllDoctorAvailabilities();

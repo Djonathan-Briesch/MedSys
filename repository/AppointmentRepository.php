@@ -228,3 +228,4 @@ function hasConflict($doctorId, $startDateTime, $endDateTime, $ignoreId = null)
     $stmt->execute();
     return $stmt->fetchColumn() > 0;
 }
+

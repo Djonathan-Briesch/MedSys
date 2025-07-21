@@ -17,6 +17,8 @@ switch ($request) {
     case 'GET':
         if (isset($_GET['id'])) {
             $result = getDoctorAvailabilityById($_GET['id']);
+            error_log("Fetching doctor availability with ID: " . $_GET['id']);
+            error_log("Result: " . json_encode($result));
         } else {
             $result = getAllDoctorAvailabilities();
         }

@@ -30,15 +30,19 @@ switch ($request) {
         break;
 
     case 'POST':
-        $data = [
-            'doctorId' => $_POST['doctorId'] ?? null,
-            'patientId' => $_POST['patientId'] ?? null,
-            'startDateTime' => $_POST['startDateTime'] ?? null,
-            'endDateTime' => $_POST['endDateTime'] ?? null,
-            'status' => $_POST['status'] ?? 'PENDING',
-            'notes' => $_POST['notes'] ?? null
-        ];
+        $rawData = file_get_contents("php://input");
+        $data = json_decode($rawData, true);
+
+        if (!$data) {
+            error_log("Erro ao decodificar JSON: " . $rawData);
+            http_response_code(400);
+            echo json_encode(["error" => "Dados inválidos."]);
+            exit;
+        }
+
+        error_log("Creating appointment with data: " . json_encode($data));
         $result = createAppointment($data);
+        error_log("Appointment creation result: " . json_encode($result));
         break;
 
     case 'PATCH':
