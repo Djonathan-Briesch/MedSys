@@ -132,6 +132,7 @@ function findAppointments($filters = [], $limit = null, $offset = null)
         ] : $editedBy;
 
         $result[] = [
+            'id' => $appointment['id'], 
             'doctor' => $doctorData,
             'patient' => $patientData,
             'startDateTime' => $appointment['startDateTime'],

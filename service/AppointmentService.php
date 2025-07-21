@@ -28,6 +28,9 @@ function getAppointmentById($id)
 
 function updateAppointment($data)
 {
+    error_log("-----------------------------");
+    error_log("Updating appointment with data: " . json_encode($data));
+    error_log("-----------------------------");
     if (empty($data['id'])) {
         return ['data' => 'ID is required', 'status' => 400];
     }
