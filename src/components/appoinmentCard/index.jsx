@@ -1,5 +1,4 @@
-import { useNavigate } from 'react-router-dom';
-import { 
+import {
   Card,
   CardHeader,
   DoctorName,
@@ -9,36 +8,24 @@ import {
   DetailValue,
   ButtonsContainer,
   ActionButton
- } from "./styles";
+} from './styles'
 
 export const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
-  const navigate = useNavigate();
-
-  const handleReschedule = () => {
-    navigate('/agendar', { 
-      state: { 
-        doctor: { 
-          id: appointment.doctorId,
-          name: appointment.doctorName,
-          specialty: appointment.doctorSpecialty
-        },
-        appointmentToEdit: appointment
-      } 
-    });
-  };
-
+  console.log(appointment.status);
+  
   return (
     <Card status={appointment.status}>
       <CardHeader>
-        <DoctorName>{appointment.doctorName}</DoctorName>
+        <DoctorName>{appointment.doctor.name}</DoctorName>
         <StatusBadge status={appointment.status}>
-          {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+          {appointment.status.charAt(0).toUpperCase() +
+            appointment.status.slice(1)}
         </StatusBadge>
       </CardHeader>
 
       <DetailRow>
         <DetailLabel>Paciente:</DetailLabel>
-        <DetailValue>{appointment.patientName}</DetailValue>
+        <DetailValue>{appointment.patient.name}</DetailValue>
       </DetailRow>
 
       <DetailRow>
@@ -48,7 +35,9 @@ export const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
 
       <DetailRow>
         <DetailLabel>Horário:</DetailLabel>
-        <DetailValue>{appointment.startTime} - {appointment.endTime}</DetailValue>
+        <DetailValue>
+          {appointment.startTime} - {appointment.endTime}
+        </DetailValue>
       </DetailRow>
 
       {appointment.notes && (
@@ -59,9 +48,14 @@ export const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
       )}
 
       <ButtonsContainer>
-        <ActionButton onClick={() => onCancel(appointment.id)}>Cancelar</ActionButton>
-        <ActionButton onClick={handleReschedule}>Adiar/Reagendar</ActionButton>
+        {appointment.status !== 'cancelled' && (
+          <ActionButton onClick={() => onCancel(appointment.id)}>
+            Cancelar
+          </ActionButton>
+        )}
+
+        <ActionButton onClick={onReschedule}>Reagendar</ActionButton>
       </ButtonsContainer>
     </Card>
-  );
-};
+  )
+}

@@ -27,7 +27,7 @@ export const NotificationsPanel = ({
   }
 
   const handleNotificationClick = (notification) => {
-    if (!notification.read) {
+    if (!(notification.read || notification.readFlag)) {
       onMarkAsRead(notification.id)
     }
   }
@@ -45,14 +45,14 @@ export const NotificationsPanel = ({
         notifications.map((notification) => (
           <NotificationItem
             key={notification.id}
-            unread={!notification.read}
+            unread={!(notification.read || notification.readFlag)}
             onClick={() => handleNotificationClick(notification)}
           >
-            <NotificationTitle unread={!notification.read}>
+            <NotificationTitle unread={!(notification.read || notification.readFlag)}>
               {notification.title}
             </NotificationTitle>
-            <NotificationMessage>{notification.message}</NotificationMessage>
-            <NotificationTime>{formatDate(notification.date)}</NotificationTime>
+            <NotificationMessage>{notification.description}</NotificationMessage>
+            <NotificationTime>{formatDate(notification.dateTime)}</NotificationTime>
           </NotificationItem>
         ))
       )}

@@ -2,34 +2,38 @@ import {
   Card,
   CardHeader,
   DoctorName,
+  PatientName,
   DetailRow,
   DetailLabel,
   DetailValue,
+  NotesSection,
 } from './styles'
 
 export const ConsultationCard = ({ consultation }) => {
+  console.log('ConsultationCard:', consultation);
+  
   return (
     <Card>
       <CardHeader>
-        <DoctorName>{consultation.doctorName}</DoctorName>
+        <DoctorName>{consultation.appointment.doctor.name}</DoctorName>
       </CardHeader>
 
-      <PatientName>Paciente: {consultation.patientName}</PatientName>
+      <PatientName>Paciente: {consultation.appointment.patient.name}</PatientName>
 
       <DetailRow>
         <DetailLabel>Data de início:</DetailLabel>
-        <DetailValue>{consultation.startDate}</DetailValue>
+        <DetailValue>{consultation.startDateTime}</DetailValue>
       </DetailRow>
 
       <DetailRow>
         <DetailLabel>Data de fim:</DetailLabel>
-        <DetailValue>{consultation.endDate}</DetailValue>
+        <DetailValue>{consultation.endDateTime}</DetailValue>
       </DetailRow>
 
-      {consultation.notes && (
+      {(consultation.medicalNotes || consultation.notes) && (
         <NotesSection>
           <DetailLabel>Observações:</DetailLabel>
-          <p>{consultation.notes}</p>
+          <p>{consultation.medicalNotes || consultation.notes}</p>
         </NotesSection>
       )}
     </Card>

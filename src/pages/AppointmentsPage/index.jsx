@@ -8,64 +8,59 @@ import {
   FilterButton,
   NoAppointments
 } from './styles'
+import { useNavigate } from 'react-router-dom'
+import { fetchAppointmentsByUserId, updateAppointment } from './apiAccess.js'
 
 export const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState([])
-  const [filter, setFilter] = useState('todos')
+  const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
-
-  // FAZER CONSULTA COM API
-  const fetchAppointments = async () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: 1,
-            doctorId: 1,
-            doctorName: 'Dr. Carlos Silva',
-            doctorSpecialty: 'Cardiologia',
-            patientName: 'João Silva',
-            day: 'quarta',
-            startTime: '10:00',
-            endTime: '11:00',
-            status: 'confirmado',
-            notes: 'Paciente com histórico de pressão alta'
-          },
-          {
-            id: 2,
-            doctorId: 2,
-            doctorName: 'Dra. Ana Oliveira',
-            doctorSpecialty: 'Dermatologia',
-            patientName: 'João Silva',
-            day: 'quinta',
-            startTime: '09:00',
-            endTime: '10:00',
-            status: 'pendente',
-            notes: ''
-          },
-          {
-            id: 3,
-            doctorId: 3,
-            doctorName: 'Dr. Marcos Souza',
-            doctorSpecialty: 'Ortopedia',
-            patientName: 'João Silva',
-            day: 'sexta',
-            startTime: '13:00',
-            endTime: '14:00',
-            status: 'adiado',
-            notes: 'Paciente solicitou reagendamento'
-          }
-        ])
-      }, 500)
-    })
-  }
+  const navigate = useNavigate()
 
   useEffect(() => {
     const loadAppointments = async () => {
+      setLoading(true)
       try {
-        setLoading(true)
-        const data = await fetchAppointments()
-        setAppointments(data)
+        const userId = sessionStorage.getItem('userId')
+        if (!userId) {
+          console.error('Usuário não autenticado.')
+          setAppointments([])
+          return
+        }
+
+        const data = await fetchAppointmentsByUserId(userId)
+
+        setAppointments(
+          data.map((item) => ({
+            id: item.id,
+            doctor: {
+              id: item.doctor.id,
+              name: item.doctor.name,
+              specialty: item.doctor.specialty || ''
+            },
+            patient: {
+              id: item.patient.id,
+              name: item.patient.name
+            },
+            day: new Date(item.startDateTime).toLocaleDateString('pt-BR', {
+              weekday: 'long'
+            }),
+            startTime: new Date(item.startDateTime).toLocaleTimeString(
+              'pt-BR',
+              { hour: '2-digit', minute: '2-digit' }
+            ),
+            endTime: new Date(item.endDateTime).toLocaleTimeString('pt-BR', {
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+            status: item.status.toLowerCase(),
+            notes: item.notes,
+            startDateTime: item.startDateTime,
+            endDateTime: item.endDateTime,
+            createdBy: item.createdBy || null,
+            editedBy: item.editedBy || null
+          }))
+        )
       } catch (error) {
         console.error('Erro ao carregar agendamentos:', error)
       } finally {
@@ -76,16 +71,52 @@ export const AppointmentsPage = () => {
     loadAppointments()
   }, [])
 
-  const handleCancel = (appointmentId) => {
-    setAppointments((prev) =>
-      prev.map((app) =>
-        app.id === appointmentId ? { ...app, status: 'cancelado' } : app
+  const handleCancel = async (appointment) => {
+    try {
+      if (!appointment || !appointment.doctor || !appointment.patient) {
+        console.error('Dados do agendamento incompletos:', appointment)
+        alert('Não foi possível cancelar: dados do agendamento incompletos.')
+        return
+      }
+
+      const updatedData = {
+        id: appointment.id,
+        status: 'cancelled',
+        doctorId: appointment.doctor.id,
+        patientId: appointment.patient.id,
+        startDateTime: appointment.startDateTime,
+        endDateTime: appointment.endDateTime,
+        createdBy: appointment.createdBy?.id || appointment.createdBy || null,
+        editedBy: sessionStorage.getItem('userId'),
+        notes: appointment.notes
+      }
+
+      await updateAppointment(updatedData)
+
+      setAppointments((prev) =>
+        prev.map((app) =>
+          app.id === appointment.id ? { ...app, status: 'cancelled' } : app
+        )
       )
-    )
+    } catch (error) {
+      console.error('Erro ao cancelar agendamento:', error)
+      alert('Erro ao cancelar agendamento, tente novamente.')
+    }
+  }
+
+  const handleReschedule = (appointment) => {
+    console.log('Reagendando agendamento:', appointment)
+
+    navigate('/agendar', {
+      state: {
+        doctor: appointment.doctor,
+        appointmentToEdit: appointment
+      }
+    })
   }
 
   const filteredAppointments =
-    filter === 'todos'
+    filter === 'all'
       ? appointments
       : appointments.filter((app) => app.status === filter)
 
@@ -97,32 +128,32 @@ export const AppointmentsPage = () => {
 
         <FilterContainer>
           <FilterButton
-            active={filter === 'todos'}
-            onClick={() => setFilter('todos')}
+            active={filter === 'all'}
+            onClick={() => setFilter('all')}
           >
             Todos
           </FilterButton>
           <FilterButton
-            active={filter === 'pendente'}
-            onClick={() => setFilter('pendente')}
+            active={filter === 'pending'}
+            onClick={() => setFilter('pending')}
           >
             Pendentes
           </FilterButton>
           <FilterButton
-            active={filter === 'confirmado'}
-            onClick={() => setFilter('confirmado')}
+            active={filter === 'confirmed'}
+            onClick={() => setFilter('confirmed')}
           >
             Confirmados
           </FilterButton>
           <FilterButton
-            active={filter === 'adiado'}
-            onClick={() => setFilter('adiado')}
+            active={filter === 'postponed'}
+            onClick={() => setFilter('postponed')}
           >
             Adiados
           </FilterButton>
           <FilterButton
-            active={filter === 'cancelado'}
-            onClick={() => setFilter('cancelado')}
+            active={filter === 'cancelled'}
+            onClick={() => setFilter('cancelled')}
           >
             Cancelados
           </FilterButton>
@@ -137,7 +168,8 @@ export const AppointmentsPage = () => {
             <AppointmentCard
               key={appointment.id}
               appointment={appointment}
-              onCancel={handleCancel}
+              onCancel={() => handleCancel(appointment)}
+              onReschedule={() => handleReschedule(appointment)}
             />
           ))
         )}

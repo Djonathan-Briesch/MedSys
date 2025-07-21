@@ -1,13 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { registerUser } from './apiAccess'
 
-import {
-  FiUser,
-  FiMail,
-  FiLock,
-  FiCalendar,
-  FiFileText,
-  FiHash
-} from 'react-icons/fi'
+import { FiUser, FiMail, FiLock, FiCalendar, FiFileText } from 'react-icons/fi'
 
 import {
   Container,
@@ -16,22 +11,21 @@ import {
   InputGroup,
   Input,
   Button,
-  IconWrapper,
-  Select
+  IconWrapper
 } from './styles'
 
 export default function SingUp() {
+  const navigate = useNavigate()
   const [form, setForm] = useState({
-    nome: '',
+    name: '',
     email: '',
-    dataNascimento: '',
+    birthDate: '',
     cpf: '',
-    senha: '',
-    confirmarSenha: '',
-    tipoUsuario: 'Paciente',
-    crm: '',
-    especialidade: '',
-    planoSaude: ''
+    password: '',
+    confirmPassword: '',
+    role: 'PATIENT',
+    healthPlan: '',
+    specialty: ''
   })
 
   const handleChange = (e) => {
@@ -41,10 +35,37 @@ export default function SingUp() {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    alert(JSON.stringify(form, null, 2))
-    // TODO: Implementar lógica de registro
+
+    if (form.password !== form.confirmPassword) {
+      alert('Senha e confirmar senha não coincidem')
+      return
+    }
+
+    try {
+      const payload = {
+        name: form.name,
+        cpf: form.cpf,
+        email: form.email,
+        bd: form.birthDate,
+        pass: form.password,
+        type: form.role,
+        healthPlan: form.healthPlan,
+        specialty: form.specialty
+      }
+
+      console.log('Payload enviado:', payload)
+
+      const data = await registerUser(payload)
+      console.log('Registration successful:', data)
+
+      if (data) {
+        navigate('/login')
+      }
+    } catch (error) {
+      console.error('Error during registration:', error)
+    }
   }
 
   return (
@@ -59,8 +80,8 @@ export default function SingUp() {
             <Input
               type="text"
               placeholder="Nome"
-              name="nome"
-              value={form.nome}
+              name="name"
+              value={form.name}
               onChange={handleChange}
               required
             />
@@ -85,8 +106,8 @@ export default function SingUp() {
             <Input
               type="date"
               placeholder="Data de Nascimento"
-              name="dataNascimento"
-              value={form.dataNascimento}
+              name="birthDate"
+              value={form.birthDate}
               onChange={handleChange}
               required
             />
@@ -111,8 +132,8 @@ export default function SingUp() {
             <Input
               type="password"
               placeholder="Senha"
-              name="senha"
-              value={form.senha}
+              name="password"
+              value={form.password}
               onChange={handleChange}
               required
             />
@@ -124,73 +145,22 @@ export default function SingUp() {
             <Input
               type="password"
               placeholder="Confirmar Senha"
-              name="confirmarSenha"
-              value={form.confirmarSenha}
+              name="confirmPassword"
+              value={form.confirmPassword}
               onChange={handleChange}
               required
             />
           </InputGroup>
 
-          <InputGroup>
-            <Select
-              name="tipoUsuario"
-              value={form.tipoUsuario}
-              onChange={handleChange}
-            >
-              <option value="Paciente">Paciente</option>
-              <option value="Medico">Médico</option>
-            </Select>
-          </InputGroup>
-
-          {form.tipoUsuario === 'Medico' && (
-            <>
-              <InputGroup>
-                <IconWrapper>
-                  <FiHash />
-                </IconWrapper>
-                <Input
-                  type="text"
-                  placeholder="CRM"
-                  name="crm"
-                  value={form.crm}
-                  onChange={handleChange}
-                  required
-                />
-              </InputGroup>
-              <InputGroup>
-                <IconWrapper>
-                  <FiFileText />
-                </IconWrapper>
-                <Input
-                  type="text"
-                  placeholder="Especialidade"
-                  name="especialidade"
-                  value={form.especialidade}
-                  onChange={handleChange}
-                  required
-                />
-              </InputGroup>
-            </>
-          )}
-
-          {form.tipoUsuario === 'Paciente' && (
-            <InputGroup>
-              <IconWrapper>
-                <FiFileText />
-              </IconWrapper>
-              <Input
-                type="text"
-                placeholder="Plano de Saúde"
-                name="planoSaude"
-                value={form.planoSaude}
-                onChange={handleChange}
-                required
-              />
-            </InputGroup>
-          )}
-
           <Button type="submit">Cadastrar</Button>
         </form>
+        <p
+          onClick={() => {
+            navigate('/login')
+          }}
+        >
+          Já tem conta? Faça login
+        </p>
       </RegisterBox>
     </Container>
   )

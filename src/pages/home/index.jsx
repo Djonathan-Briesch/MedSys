@@ -10,28 +10,28 @@ import {
   DoctorsGrid
 } from "./styles";
 
-
-const mockDoctors = [
-  { id: 1, name: "Dr. Carlos Silva", specialty: "Cardiologia", price: 250.00 },
-  { id: 2, name: "Dra. Ana Oliveira", specialty: "Dermatologia", price: 200.00 },
-  { id: 3, name: "Dr. Marcos Souza", specialty: "Ortopedia", price: 220.00 },
-  { id: 4, name: "Dra. Juliana Costa", specialty: "Pediatria", price: 180.00 },
-  { id: 5, name: "Dr. Roberto Almeida", specialty: "Neurologia", price: 300.00 },
-  { id: 6, name: "Dra. Fernanda Lima", specialty: "Ginecologia", price: 230.00 },
-];
+import { fetchDoctors } from "./apiAccess";
 
 export const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredDoctors, setFilteredDoctors] = useState(mockDoctors);
+  const [doctors, setDoctors] = useState([]);
+  const [filteredDoctors, setFilteredDoctors] = useState([]);
 
-
-// TODO: FAZR CONSULTA COM API
   useEffect(() => {
-    const results = mockDoctors.filter(doctor =>
+    async function loadDoctors() {
+      const doctorsFromService = await fetchDoctors();
+      setDoctors(doctorsFromService);
+      setFilteredDoctors(doctorsFromService);
+    }
+    loadDoctors();
+  }, []);
+
+  useEffect(() => {
+    const results = doctors.filter(doctor =>
       doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredDoctors(results);
-  }, [searchTerm]);
+  }, [searchTerm, doctors]);
 
   return (
     <PageContainer>
@@ -48,9 +48,13 @@ export const Home = () => {
         </SearchContainer>
 
         <DoctorsGrid>
-          {filteredDoctors.map(doctor => (
-            <DoctorCard key={doctor.id} doctor={doctor} />
-          ))}
+          {filteredDoctors.length === 0 ? (
+            <p>Nenhum médico encontrado.</p>
+          ) : (
+            filteredDoctors.map(doctor => (
+              <DoctorCard key={doctor.id} doctor={doctor} />
+            ))
+          )}
         </DoctorsGrid>
       </Content>
     </PageContainer>

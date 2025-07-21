@@ -16,7 +16,7 @@ export const router = createBrowserRouter([
     element: <SingUp />
   },
   {
-    path: '/',
+    path: '/dashboard',
     element: <Home />
   },
   {
@@ -30,5 +30,9 @@ export const router = createBrowserRouter([
   {
     path: 'consultas',
     element: <ConsultationsPage />
+  },
+  {
+    path: '*',
+    element: <Login />
   }
 ])

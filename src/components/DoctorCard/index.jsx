@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { Card, DoctorName, Specialty, Price } from './styles'
 export const DoctorCard = ({ doctor }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  console.log("Renderizando DoctorCard:", doctor);
 
   const handleClick = () => {
-    navigate('/agendar', { state: { doctor } })
-  }
+    navigate('/agendar', { state: { doctor } });
+  };
 
   return (
     <Card onClick={handleClick}>
@@ -13,5 +15,6 @@ export const DoctorCard = ({ doctor }) => {
       <Specialty>{doctor.specialty}</Specialty>
       <Price>R$ {doctor.price.toFixed(2)}</Price>
     </Card>
-  )
-}
+  );
+};
+

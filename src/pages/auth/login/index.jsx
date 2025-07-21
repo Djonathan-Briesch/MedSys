@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { FiMail, FiLock } from 'react-icons/fi'
+import { useNavigate } from 'react-router-dom'
+import { FiFileText, FiLock } from 'react-icons/fi'
+import { loginUser } from './apiAccess'
 import {
   Container,
   LoginBox,
@@ -11,13 +13,28 @@ import {
 } from './styles.js'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
+  const [cpf, setCpf] = useState('')
   const [password, setPassword] = useState('')
+  const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    alert(`Email: ${email}\nSenha: ${password}`)
-    // TODO: FAZER PARA LOGAR AQUI
+
+    try {
+      const data = await loginUser({ cpf, password })
+      console.log('Login response:', data)
+      sessionStorage.setItem('userId', data.id)
+      console.log('User ID stored in sessionStorage:', sessionStorage.getItem('userId'));
+      
+      if (data.status) {
+        alert('CPF ou senha inválidos')
+      } else {
+        navigate('/dashboard')
+      }
+    } catch (error) {
+      console.error('Error during login:', error)
+      alert('Erro ao fazer login')
+    }
   }
 
   return (
@@ -27,13 +44,13 @@ export default function Login() {
         <form onSubmit={handleSubmit}>
           <InputGroup>
             <IconWrapper>
-              <FiMail />
+              <FiFileText />
             </IconWrapper>
             <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="CPF"
+              value={cpf}
+              onChange={(e) => setCpf(e.target.value)}
               required
             />
           </InputGroup>
@@ -51,6 +68,14 @@ export default function Login() {
           </InputGroup>
           <Button type="submit">Entrar</Button>
         </form>
+
+        <p
+          onClick={() => {
+            navigate('/register')
+          }}
+        >
+          Não tem conta? Cadastre-se
+        </p>
       </LoginBox>
     </Container>
   )
