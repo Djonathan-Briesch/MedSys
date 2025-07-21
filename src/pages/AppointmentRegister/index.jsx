@@ -118,18 +118,20 @@ export const AppointmentRegister = () => {
 
       const updatedData = {
         id: appointmentToEdit.id,
-        doctorId: doctor.id, // incluir doctorId
+        doctorId: doctor.id,
         startDateTime: formattedStartDateTime,
         endDateTime: formattedEndDateTime,
         notes,
         editedBy: sessionStorage.getItem('userId'),
         status:
-          appointmentToEdit.status === 'CANCELLED'
+          appointmentToEdit.status.toUpperCase() === 'CANCELLED'
             ? 'PENDING'
             : appointmentToEdit.status
       }
 
       try {
+        console.log('Enviando para updateAppointment:', updatedData);
+
         await updateAppointment(updatedData)
         alert('Agendamento reagendado com sucesso!')
         navigate('/agendamentos')
